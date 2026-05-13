@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes, viewport-fit=cover">
+  <title>RISE SYSTEM™ | لماذا تفشل؟ مختبر التشريح الفلسفي والنفسي</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    :root {
+      --c1: 195 100% 55%;
+      --c2: 280 85% 64%;
+      --c3: 155 80% 48%;
+      --c5: 0 84% 60%;
+      --bg: #05060f;
+      --text: #eef5ff;
+      --muted: rgba(238,245,255,0.9); /* كان 0.7، أصبح أوضح */
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans Arabic", system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      line-height: 1.8;
+    }
+    @media (max-width: 820px) {
+      body { cursor: auto; }
+    }
+
+    /* مؤشر ضوئي */
+    .cursor-glow {
+      position: fixed; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, hsla(var(--c1), 0.15) 0%, transparent 70%);
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%); transition: transform 0.05s ease-out;
+      mix-blend-mode: screen;
+    }
+
+    /* Three.js canvas */
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    }
+
+    /* حاوية المحتوى */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* القسم البطولي */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+      position: relative;
+    }
+    .glitch-title {
+      font-family: "Oxanium", "IBM Plex Sans Arabic", sans-serif;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 800;
+      position: relative;
+      display: inline-block;
+      color: #fff;
+      text-shadow: 0 0 15px rgba(0,229,255,0.3);
+      animation: glitch-skew 2.5s infinite ease-in-out;
+    }
+    .glitch-title::before,
+    .glitch-title::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      opacity: 0.8;
+    }
+    .glitch-title::before {
+      color: hsl(var(--c2));
+      transform: translate(-2px, 0);
+      clip-path: inset(0 0 55% 0);
+      animation: glitch-top 1s infinite linear alternate-reverse;
+      mix-blend-mode: screen;
+    }
+    .glitch-title::after {
+      color: hsl(var(--c5));
+      transform: translate(2px, 0);
+      clip-path: inset(45% 0 0 0);
+      animation: glitch-bottom 1.2s infinite linear alternate-reverse;
+      mix-blend-mode: screen;
+    }
+    @keyframes glitch-top {
+      0% { transform: translate(-2px, 0); }
+      20% { transform: translate(-3px, -1px); }
+      40% { transform: translate(-1px, 1px); }
+      60% { transform: translate(-4px, 0); }
+      80% { transform: translate(-2px, 1px); }
+      100% { transform: translate(-3px, -1px); }
+    }
+    @keyframes glitch-bottom {
+      0% { transform: translate(2px, 0); }
+      20% { transform: translate(4px, 1px); }
+      40% { transform: translate(1px, -1px); }
+      60% { transform: translate(3px, 0); }
+      80% { transform: translate(2px, -1px); }
+      100% { transform: translate(4px, 1px); }
+    }
+    @keyframes glitch-skew {
+      0%,100% { transform: skewX(0deg); }
+      20% { transform: skewX(-2deg); }
+      21% { transform: skewX(3deg); }
+      22% { transform: skewX(0deg); }
+      65% { transform: skewX(0deg); }
+      66% { transform: skewX(-3deg); }
+      67% { transform: skewX(2deg); }
+      68% { transform: skewX(0deg); }
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 1rem auto 2rem;
+      color: var(--muted);
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      background: linear-gradient(135deg, hsl(var(--c1)), hsl(var(--c2)));
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-decoration: none;
+      box-shadow: 0 0 30px hsla(var(--c1), 0.5);
+      transition: 0.3s;
+      font-family: "Oxanium", sans-serif;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-btn::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+      animation: shimmer 2.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(0deg); }
+      100% { transform: translateX(100%) rotate(0deg); }
+    }
+    .cta-btn:hover {
+      box-shadow: 0 0 60px hsla(var(--c1), 0.8);
+      transform: translateY(-3px);
+    }
+
+    /* أقسام المحتوى */
+    .section {
+      margin: 4rem 0;
+      padding: 2rem 0;
+    }
+    .section h2 {
+      font-family: "Oxanium", sans-serif;
+      font-size: 2rem;
+      color: hsl(var(--c1));
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .section h3 {
+      font-family: "Oxanium", sans-serif;
+      font-size: 1.4rem;
+      color: hsl(var(--c2));
+      margin: 1.5rem 0 0.8rem;
+    }
+    .section p {
+      margin-bottom: 1.2rem;
+      color: var(--muted);
+    }
+    .highlight {
+      color: hsl(var(--c1));
+      font-weight: bold;
+    }
+    .quote {
+      border-right: 3px solid hsl(var(--c1));
+      padding: 0.5rem 1.5rem;
+      margin: 1.5rem 0;
+      font-style: italic;
+      background: rgba(255,255,255,0.03);
+      border-radius: 0 12px 12px 0;
+      color: var(--muted);
+    }
+    .quote span {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: hsl(var(--c2));
+    }
+    .stat-inline {
+      display: inline-block;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-weight: bold;
+      color: hsl(var(--c1));
+    }
+
+    .separator {
+      text-align: center;
+      margin: 3rem 0;
+      color: hsl(var(--c2));
+      font-size: 1.5rem;
+      opacity: 0.6;
+    }
+
+    .toc {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .toc h4 {
+      color: hsl(var(--c1));
+      margin-bottom: 0.8rem;
+    }
+    .toc ul {
+      list-style: none;
+    }
+    .toc li {
+      padding: 0.3rem 0;
+      color: var(--muted);
+    }
+    .toc li::before {
+      content: "▸ ";
+      color: hsl(var(--c2));
+    }
+
+    .cta-section {
+      text-align: center;
+      margin: 4rem 0;
+      padding: 3rem 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 24px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- مؤشر ضوئي -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- خلفية Three.js -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- المحتوى -->
+  <div class="container">
+    <!-- الهيرو -->
+    <section class="hero">
+      <h1 class="glitch-title" data-text="لماذا تفشل؟">لماذا تفشل؟</h1>
+      <p class="subtitle">تشريح فلسفي ونفسي وعلمي لأسباب الفشل وقلة الإنتاجية. لماذا لا تصل إلى أفضل ما يمكنك؟</p>
+      <a href="#start" class="cta-btn">🔬 ابدأ التشريح</a>
+    </section>
+
+    <!-- فهرس المحتويات -->
+    <div class="toc" id="start">
+      <h4>📋 مختبر التشريح - المحتويات</h4>
+      <ul>
+        <li>الفصل الأول: الجذور الفلسفية للفشل</li>
+        <li>الفصل الثاني: التسويف - المستنقع الصامت</li>
+        <li>الفصل الثالث: كيمياء الدماغ - الدوبامين والإدمان الرقمي</li>
+        <li>الفصل الرابع: العقلية الثابتة وسجن الذات</li>
+        <li>الفصل الخامس: التشتت والشرود الذهني</li>
+        <li>الفصل السادس: غياب الانضباط الذاتي</li>
+        <li>الفصل السابع: الحل - المواجهة بلا رحمة</li>
+      </ul>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل الأول: الجذور الفلسفية للفشل -->
+    <div class="section">
+      <h2>الفصل الأول: الجذور الفلسفية للفشل</h2>
+      <p>منذ فجر الفلسفة، شغل سؤال الفشل والنجاح أذهان المفكرين. لم يكن الفشل عندهم مجرد نتيجة عابرة، بل حالة وجودية تعكس علاقة الإنسان بذاته وبالعالم. الفيلسوف اليوناني <span class="highlight">أرسطو</span> (384-322 ق.م) وضع حجر الأساس لفهم الفشل عندما ميّز بين الفعل الذي يصدر عن فضيلة، والفعل الذي يصدر عن رذيلة. في كتابه "الأخلاق النيقوماخية"، يشرح أرسطو أن الحياة الطيبة تتحقق فقط عندما نمارس الفضائل ونحولها إلى عادات. يقول: "نحن ما نكرره باستمرار. الامتياز إذن ليس فعلاً، بل عادة".</p>
+      
+      <div class="quote">
+        "الاعتدال البسيط ليس جيداً للرفاهية، ولكن الاعتدال المفرط قد يكون رائعاً."
+        <span>— أرسطو، الأخلاق النيقوماخية</span>
+      </div>
+      
+      <p>أرسطو لم يكتفِ بالتنظير، بل وضع قواعد عملية: واجه مخاوفك، اعرف رغباتك وتحكم فيها، لا تكن بخيلاً ولا مسرفاً، ركز على الأمور السامية وتجاهل التفاهات. هذه القواعد التي عمرها 2400 سنة، تكشف لنا أن جذور الفشل قديمة قدم الإنسان نفسه: الخوف غير المبرر، الرغبات غير المنضبطة، والتشتت بين التافه والجوهري. عندما تنظر إلى حياتك اليوم، ستجد أنك ربما تعيش ضد كل قاعدة أرسطية: خائف من البدء، منغمس في الرغبات السريعة، مشتت بين الإشعارات والتفاهات الرقمية.</p>
+      
+      <p>بعد أرسطو بقرون، جاء الفيلسوف الألماني <span class="highlight">فريدريك نيتشه</span> (1844-1900) ليضيف بعداً أكثر قتامة لفهم الفشل. نيتشه رأى أن الإنسان الحديث يعيش حالة من "العدمية" - فقدان المعنى والغاية. في إحدى تأملاته العميقة، كتب: "الإنسان ليس كائناً يبحث عن السعادة، بل عن الاندفاع الذي يقوده إليها". هذه العبارة المكثفة تفسر لماذا نقع في فخاخ التسويف والإلهاء: نحن لا نبحث عن الإنجاز نفسه، بل عن الشعور المؤقت بالاندفاع نحوه. ولهذا نجد أنفسنا نتصفح هواتفنا بدلاً من العمل على مشاريعنا - الهاتف يمنحنا اندفاعات سريعة من الدوبامين، بينما العمل الحقيقي يتطلب صبراً لا نملكه.</p>
+      
+      <p>في الفلسفة الرواقية، التي أسسها <span class="highlight">زينون الرواقي</span> وطوّرها <span class="highlight">ماركوس أوريليوس</span>، نجد تفسيراً آخر للفشل: الفشل ينبع من محاولة السيطرة على ما لا يمكن السيطرة عليه، وإهمال ما يمكن السيطرة عليه فعلاً. الرواقيون يرون أن السلام الداخلي والنجاح الحقيقي ينبعان من السيطرة على الذات، لا على الظروف الخارجية. عندما تنظر إلى إخفاقاتك، ستجد أن معظمها جاء من محاولة التحكم في عوامل خارجية (آراء الناس، ظروف السوق، الحظ) بدلاً من التركيز على ما تملكه فعلاً: أفكارك، أفعالك، عاداتك.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل الثاني: التسويف -->
+    <div class="section">
+      <h2>الفصل الثاني: التسويف - المستنقع الصامت</h2>
+      <p>التسويف ليس مجرد عادة سيئة أو كسل. إنه، كما تصفه الأبحاث الحديثة، "اضطراب في نظام المكافأة العصبي". علماء النفس المعاصرون يرون أن التسويف هو آلية دفاعية ضد التوتر الناتج عن المعنى - نحن لا نؤجل المهام لأننا كسالى، بل لأن المهمة تحمل ثقلاً نفسياً يجعلنا نهرب منها إلى أي شيء آخر. في كل مرة تؤجل عملاً مهماً، اسأل نفسك: "ما الذي أهرب منه؟ وما الذي أبحث عنه الآن؟"</p>
+      
+      <p>الإحصائيات حول التسويف مرعبة. تشير الدراسات إلى أن <span class="stat-inline">20%</span> من البالغين يعانون من التسويف المزمن. والأخطر من ذلك، أن المسوّفين يتقاضون رواتب أقل بنحو <span class="stat-inline">14,000 دولار</span> سنوياً من زملائهم الذين لا يسوّفون. هذا ليس رقماً صغيراً - إنه الفارق بين حياة كريمة وحياة متعثرة، بسبب عادة واحدة فقط.</p>
+      
+      <p>نظرية "التحفيز الزمني" (Temporal Motivation Theory) التي طورها الباحثان بيرس ستيل وكورنيليوس كونيغ، تشرح بدقة رياضية لماذا نسوّف. وفقاً لهذه النظرية، تعتمد احتمالية إنجازك لمهمة على أربعة عوامل: (1) توقعك للنجاح، (2) قيمة المكافأة، (3) حساسيتك للتأخير، و(4) الوقت المتبقي. بكلمات أبسط: نحن نسوّف عندما نعتقد أن المهمة صعبة جداً (توقع منخفض)، أو عندما لا نرى قيمة فورية في إنجازها (تأخير المكافأة).</p>
+      
+      <p>العالم جيسون ويسيل من جامعة غريفيث الأسترالية لخص المشكلة في أربعة أسئلة بسيطة يمكنك أن تطرحها على نفسك الآن: هل تسيء تقدير فرصك في إتمام المهمة بنجاح؟ هل تعجز عن إدراك مدى تأثير التأخير على فرصك؟ هل تفشل في تقدير أهمية المهمة ومزايا إنجازها في الوقت المحدد؟ هل تفتقد إلى "التفكير فوق المعرفي" - أي الوعي الذاتي بأفكارك وقدرتك على تحليلها؟ إذا أجبت بنعم على أي من هذه الأسئلة، فأنت تعيش في مستنقع التسويف.</p>
+      
+      <p>العلاقة بين التسويف والتوتر علاقة دائرية مدمرة. كشفت دراسة أن الأشخاص المعرضين للتسويف لديهم مستويات أقل من التعاطف مع الذات ومستويات أعلى من التوتر. والمفارقة القاسية هي أن التسويف نفسه يزيد من مستويات التوتر، مما يؤدي إلى مزيد من التسويف - حلقة مفرغة لا تنتهي. ويخلص العلماء إلى أن المسوّفين أكثر عرضة للإصابة بالأمراض المزمنة، منها أمراض القلب والأوعية الدموية. التسويف ليس مجرد عائق إنتاجي، إنه خطر صحي حقيقي.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل الثالث: كيمياء الدماغ -->
+    <div class="section">
+      <h2>الفصل الثالث: كيمياء الدماغ - الدوبامين والإدمان الرقمي</h2>
+      <p>لفهم لماذا تفشل، عليك أن تفهم كيمياء دماغك. <span class="highlight">الدوبامين</span> ليس "هرمون السعادة" كما يشاع. إنه ناقل عصبي يرتبط أساساً بالرغبة والتوقع، وليس بالمتعة نفسها. الدوبامين هو المادة التي تجعلك تتحرك نحو هدف، لا التي تجعلك تستمتع بالوصول إليه.</p>
+      
+      <p>المشكلة أن العالم الحديث صُمم عمداً لاختطاف نظام الدوبامين لديك. في كل مرة تفتح فيها هاتفك، أو تتصفح إنستغرام، أو تشاهد مقطعاً على يوتيوب، يفرز دماغك دفعات صغيرة من الدوبامين تشبه "وعوداً صغيرة بالمتعة، لكنها لا تشبع أبداً". مع الوقت، يُعاد برمجة دماغك لتفضيل المكافآت السريعة على الإنجاز الحقيقي. فتصبح أقل قدرة على البدء بالمهام الصعبة أو الطويلة، لأن دماغك اعتاد على الإشباع الفوري.</p>
+      
+      <p>عندما تواجه مهمة تحتاج إلى تركيز وجهد - ككتابة تقرير، أو مراجعة دروس، أو إنجاز مشروع - فإن دماغك يقارن بين "المكافأة الفورية" (التي يوفرها الهاتف) و"المكافأة المؤجلة" (التي يتطلبها العمل الجاد). المهمة الجادة تتطلب صبراً قبل الشعور بالمكافأة، بينما تصفح الهاتف يمنحك جرعة فورية من الدوبامين. بكلمة واحدة: المماطلة ليست فشلاً أخلاقياً، بل اضطراب في نظام المكافأة العصبي.</p>
+      
+      <p>تأثير وسائل التواصل الاجتماعي على الإنتاجية موثق علمياً. التصفح المستمر لهذه المنصات يسبب تشتيت الانتباه والانشغال بمحتوى غير منتج، مما يؤثر سلباً على الصحة العقلية والعلاقات الاجتماعية. ومن منظور عصبي، فإن تصفح منصات مثل يوتيوب وإنستغرام ينشّط مناطق الدماغ المرتبطة بمعالجة المكافأة - تماماً مثل المخدرات. حتى أن الباحثين صاغوا مصطلح "صيام الدوبامين" كأسلوب علاجي مستوحى من العلاج السلوكي المعرفي، يهدف إلى تقليل التفاعل القهري مع هذه المحفزات الرقمية.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل الرابع: العقلية الثابتة -->
+    <div class="section">
+      <h2>الفصل الرابع: العقلية الثابتة وسجن الذات</h2>
+      <p>في عام 2006، نشرت عالمة النفس <span class="highlight">كارول دويك</span> كتاباً غيّر الطريقة التي نفهم بها الفشل. كتاب "العقلية: علم نفس النجاح الجديد" (Mindset: The New Psychology of Success) قدّم فكرة بسيطة لكنها عميقة: هناك نوعان من العقليات - العقلية الثابتة والعقلية النمائية.</p>
+      
+      <p>أصحاب <span class="highlight">العقلية الثابتة</span> يعتقدون أن الذكاء والموهبة والقدرات صفات ثابتة لا يمكن تغييرها. بالنسبة لهم، الفشل ليس مجرد نتيجة غير موفقة - إنه حكم على هويتهم. الفشل يعني أنهم ليسوا أذكياء بما فيه الكفاية، ليسوا موهوبين بما فيه الكفاية، ليسوا "جيدين" بما فيه الكفاية. في هذا التصور، يصبح النجاح مجرد دليل على ذكاء فطري، والفشل علامة كاشفة على نقص لا يمكن إصلاحه.</p>
+      
+      <p>أما أصحاب <span class="highlight">العقلية النمائية</span> فيرون الفشل بشكل مختلف تماماً. بالنسبة لهم، الفشل فرصة للتعلم. إنه ليس حكماً على هويتهم، بل معلومة يمكن استخدامها للتحسين. هم يؤمنون أن القدرات يمكن تطويرها من خلال الجهد والاستراتيجية والمساعدة من الآخرين. عندما يفشل صاحب العقلية النمائية، يسأل: "ماذا يمكنني أن أتعلم من هذا؟" بدلاً من "ما الخطأ بي؟"</p>
+      
+      <p>المفارقة القاسية هي أن العقلية الثابتة تدفع أصحابها إلى تجنب التحديات أصلاً - لأن أي تحدٍ قد يكشف عن "نقصهم". ولهذا تجد نفسك تتجنب المهام الصعبة، تؤجل المشاريع الكبيرة، وتختار الطرق الآمنة التي لا تعرض صورتك الذاتية للخطر. أنت لا تفشل لأنك غير قادر، بل لأن عقليتك الثابتة تمنعك من المحاولة أصلاً. كما قالت دويك: "رؤية الفشل كجزء طبيعي من التعلم" هي المفتاح للتحرر من هذا السجن.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل الخامس: التشتت والشرود الذهني -->
+    <div class="section">
+      <h2>الفصل الخامس: التشتت والشرود الذهني</h2>
+      <p>عدم الانتباه هو حالة يفقد فيها الفرد تركيزه أو يبتعد ذهنه عن الاستجابة للمؤثرات المحيطة به. ويحدث نتيجة عدم الاهتمام بالمثير أو بفعل عوامل تعيق قدرة الفرد على التركيز. لكن ما لا يدركه معظم الناس، هو أن التشتت ليس مجرد حالة عابرة - إنه وباء معرفي يسرق منك حياتك دقيقة بدقيقة.</p>
+      
+      <p>الإرهاق الذهني والجسدي الناتج عن العمل لساعات طويلة أو قلة النوم يؤثر على قدرة الدماغ على التركيز واستكمال المهام. الضغط النفسي والمشكلات الحياتية اليومية تؤدي إلى تشتيت الانتباه وزيادة السرحان. نقص الفيتامينات والمعادن الأساسية مثل الحديد والزنك وفيتامين B12 يؤثر على الأداء الذهني. الإفراط في استخدام الأجهزة الرقمية يعطل قدرة الدماغ على التركيز لفترات طويلة.</p>
+      
+      <p>هناك نوعان من عدم الانتباه: المطلق والجزئي. عدم الانتباه المطلق هو غياب تام لأي تركيز على المؤثرات المحيطة، ويرتبط غالباً بحالات ذهنية غير طبيعية كالإرهاق الشديد. أما عدم الانتباه الجزئي فهو الأكثر شيوعاً وخطورة - حيث تبدو منتبهاً لكنك في الحقيقة منشغل بأفكار أخرى، كالتفكير في إشعار وصل للتو أو منشور رأيته قبل قليل. هذا النوع الثاني هو ما يجعلك تقضي ساعات على مكتبك دون أن تنجز شيئاً حقيقياً.</p>
+      
+      <p>التشتت ظاهرة تحدث عندما يتحول الانتباه من نشاط معين إلى عوامل أخرى داخلية أو خارجية. وجود عوامل أكثر جاذبية، كالأصوات العالية أو الإشعارات المستمرة، يلفت الانتباه بعيداً عن المهمة الأساسية. كما أن العوامل البيئية كالإضاءة الضعيفة أو الحرارة المرتفعة تؤدي إلى انخفاض التركيز بشكل ملحوظ. وكذلك العوامل النفسية والفسيولوجية، مثل الإرهاق الذهني أو الجسدي، تجعل الفرد أكثر عرضة للتشتت.</p>
+      
+      <p>في عالم يرسل لك مئات الإشعارات يومياً، يصبح التركيز العميق عملاً ثورياً. كل مرة تسمح فيها لإشعار أن يسرق انتباهك، أنت لا تخسر فقط تلك اللحظة - بل تخسر 23 دقيقة في المتوسط لاستعادة تركيزك الكامل على المهمة التي كنت تعمل عليها. احسب كم مرة تشتت فيها يومياً، وستفهم لماذا لا تصل إلى أهدافك.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل السادس: غياب الانضباط الذاتي -->
+    <div class="section">
+      <h2>الفصل السادس: غياب الانضباط الذاتي</h2>
+      <p>الانضباط الذاتي ليس مجرد صفة يتحلى بها الإنسان، بل هو فن قيادة الذات. إنه الخيط الرفيع الذي يفصل بين العادي والمتميز، بين من يترك نفسه رهينة النزوات والرغبات العابرة، ومن يروضها لتسير وفق رؤيته وطموحاته. حيثما وُجد الانضباط، وُجدت الإرادة الصلبة، وحيثما غاب، تلاشت الأحلام تحت وطأة التخاذل والتسويف.</p>
+      
+      <div class="quote">
+        "الانضباط الذاتي هو الجسر بين الأهداف والإنجازات."
+        <span>— ستيفن كوفي</span>
+      </div>
+      
+      <p>في الفلسفة الرواقية، يُعتبر الانضباط الذاتي أحد أهم الفضائل التي تجذب "الروح الحسنة" (Eudemonia). ماركوس أوريليوس، الإمبراطور الروماني والفيلسوف الرواقي، كتب في تأملاته: "في الصباح، عندما لا ترغب في النهوض، قل لنفسك: أنا أنهض لأقوم بعمل إنسان". الانضباط ليس رفاهية أو خياراً - إنه واجب وجودي.</p>
+      
+      <p>غياب الانضباط الذاتي لا يظهر فقط في المماطلة الواضحة، بل في أشكال أكثر خبثاً: عدم القدرة على قول "لا" للمشتتات، عدم الالتزام بجدول نوم منتظم، التخلي عن العادات الإيجابية بعد أيام قليلة من البدء، الاستسلام للرغبات الفورية على حساب الأهداف طويلة المدى. كل هذه الأشكال تؤدي إلى نفس النتيجة: حياة تُعاش بأقل من طاقتها الكامنة.</p>
+      
+      <p>رأى أرسطو أن الفضائل الأخلاقية تولد من العادة. نحن نصبح عادلين بأداء الأفعال العادلة، وشجعاناً بأداء الأفعال الشجاعة، ومنضبطين بأداء الأفعال المنضبطة. بكلمات أخرى: الانضباط ليس شيئاً تولد به، بل شيئاً تبنيه فعلاً بعد فعل، يوماً بعد يوم.</p>
+    </div>
+
+    <div class="separator">◆ ◇ ◆</div>
+
+    <!-- الفصل السابع: الحل -->
+    <div class="section">
+      <h2>الفصل السابع: الحل - المواجهة بلا رحمة</h2>
+      <p>بعد أن عرفتَ عدوك - الخوف الفلسفي، التسويف الكيميائي، الإدمان الرقمي، العقلية الثابتة، التشتت المزمن، وغياب الانضباط - السؤال هو: ماذا ستفعل؟</p>
+      <p>معظم الناس يعرفون مشاكلهم. معظم الناس يعرفون أنهم يسوّفون، أنهم مشتتون، أنهم غير منضبطين. المعرفة ليست المشكلة. المشكلة هي غياب <span class="highlight">نظام إجباري</span> يواجهك بالعواقب.</p>
+      <p>لهذا صُمم <span class="highlight">RISE SYSTEM™</span>. ليس كتطبيق إنتاجية لطيف يشجعك ويربت على كتفك. بل كنظام تقييم يومي صارم، يراقب تقدمك، يعاقب إهمالك، ويكافئ التزامك. كل يوم تُغلق نتيجته عند منتصف الليل، وتُحسب عواقبه. نقاط الحياة (HP) تنخفض إن فشلت، وتنهار إن تخاذلت. الرادار الحي يرصد قواك الجسدية والذهنية والروحانية، فإذا أهملت أي مجال تآكلت قوتك فيه أُسياً.</p>
+      <p>هذا هو الحل الوحيد الذي أثبت فعاليته عبر التاريخ: <span class="highlight">المساءلة القاسية</span>. لا تكفي النوايا الحسنة، ولا تكفي المعرفة النظرية. يجب أن تكون هناك عواقب حقيقية، قابلة للقياس، لا يمكن الهروب منها.</p>
+    </div>
+
+    <!-- دعوة للتفاعل -->
+    <div class="cta-section">
+      <h2 style="font-family: 'Oxanium', sans-serif; color: hsl(var(--c1)); margin-bottom: 1rem;">هل أنت مستعد للمواجهة؟</h2>
+      <p style="color: var(--muted); margin-bottom: 2rem;">النظام لا يرحم. التزم أو ادفع الثمن.</p>
+      <a href="app.html" class="cta-btn" style="font-size: 1.4rem; padding: 1.2rem 3rem;">🚀 ادخل إلى RISE SYSTEM™</a>
+    </div>
+
+    <!-- تذييل -->
+    <footer class="footer">
+      <p>RISE SYSTEM™ © 2025 — No Mercy Mode. استناداً إلى أبحاث علم النفس والفلسفة وعلوم الأعصاب </p>
+    </footer>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    // ==================== THREE.JS ====================
+    const canvas = document.getElementById('bg-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 15;
+
+    // كرة شبكية (DNA)
+    const sphereGeo = new THREE.IcosahedronGeometry(2.2, 2);
+    const sphereWire = new THREE.LineSegments(
+      new THREE.EdgesGeometry(sphereGeo),
+      new THREE.LineBasicMaterial({ color: 0x00e5ff, linewidth: 1, transparent: true, opacity: 0.3 })
+    );
+    const sphereMesh = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({
+      color: 0x00e5ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.1
+    }));
+    scene.add(sphereMesh);
+    scene.add(sphereWire);
+
+    // حلقات
+    function createRing(radius, color, opacity) {
+      const geo = new THREE.TorusGeometry(radius, 0.02, 16, 100);
+      const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity });
+      const ring = new THREE.Mesh(geo, mat);
+      ring.rotation.x = Math.PI / 2;
+      return ring;
+    }
+    const ring1 = createRing(2.6, 0x00e5ff, 0.4);
+    const ring2 = createRing(3.0, 0xa855f7, 0.3);
+    const ring3 = createRing(3.4, 0x10b981, 0.2);
+    scene.add(ring1);
+    scene.add(ring2);
+    scene.add(ring3);
+
+    // نجوم
+    const starsGeo = new THREE.BufferGeometry();
+    const starsCount = 600;
+    const starsPos = new Float32Array(starsCount * 3);
+    for (let i = 0; i < starsCount * 3; i += 3) {
+      starsPos[i] = (Math.random() - 0.5) * 30;
+      starsPos[i+1] = (Math.random() - 0.5) * 20;
+      starsPos[i+2] = (Math.random() - 0.5) * 20;
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPos, 3));
+    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.04, blending: THREE.AdditiveBlending, depthWrite: false });
+    const stars = new THREE.Points(starsGeo, starsMat);
+    scene.add(stars);
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+    });
+
+    function animateThree() {
+      requestAnimationFrame(animateThree);
+      sphereMesh.rotation.y += 0.003;
+      sphereWire.rotation.y += 0.003;
+      ring1.rotation.z += 0.005;
+      ring2.rotation.z -= 0.004;
+      ring3.rotation.y += 0.006;
+      stars.rotation.y += 0.0001;
+      camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+      camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+    animateThree();
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // ==================== مؤشر ضوئي ====================
+    const cursorGlow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', (e) => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+    });
+
+    // ==================== GSAP Animations ====================
+    gsap.registerPlugin(ScrollTrigger);
+
+    // ظهور العناوين
+    gsap.utils.toArray('.section h2').forEach(title => {
+      gsap.from(title, {
+        scrollTrigger: { trigger: title, start: 'top 90%' },
+        opacity: 0, y: 30, duration: 0.8, ease: 'power2.out'
+      });
+    });
+
+    // ظهور الاقتباسات
+    gsap.utils.toArray('.quote').forEach(quote => {
+      gsap.from(quote, {
+        scrollTrigger: { trigger: quote, start: 'top 85%' },
+        opacity: 0, x: -30, duration: 0.8, ease: 'power2.out'
+      });
+    });
+
+    // ظهور الأزرار
+    gsap.from('.hero h1', { opacity: 0, y: -50, duration: 1.2, ease: 'power3.out' });
+    gsap.from('.hero p', { opacity: 0, y: 30, duration: 1.2, delay: 0.3, ease: 'power3.out' });
+    gsap.from('.hero .cta-btn', { opacity: 0, scale: 0.8, duration: 1, delay: 0.6, ease: 'back.out(1.7)' });
+  </script>
+</body>
+</html>
